@@ -1,11 +1,12 @@
 package com.mikhael.kotlinkeyshelper
 
+import com.mikhael.kotlinkeyshelper.helper.HelperEntrance
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
 
 @SpringBootApplication
 class KotlinKeysHelperApplication
 
 fun main(args: Array<String>) {
-	runApplication<KotlinKeysHelperApplication>(*args)
+//	runApplication<KotlinKeysHelperApplication>(*args)
+	HelperEntrance(args)
 }
