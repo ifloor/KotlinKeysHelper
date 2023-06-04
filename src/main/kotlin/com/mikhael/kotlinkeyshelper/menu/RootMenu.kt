@@ -2,8 +2,10 @@ package com.mikhael.kotlinkeyshelper.menu
 
 import com.mikhael.kotlinkeyshelper.defines.Strings
 import com.mikhael.kotlinkeyshelper.rsa.RSAHelper
+import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.security.KeyPair
+import java.util.Base64
 import kotlin.system.exitProcess
 
 class RootMenu {
@@ -29,7 +31,9 @@ class RootMenu {
             "6" -> this.menu6()
             "7" -> this.menu7()
             "8" -> this.menu8()
-            "9" -> exitProcess(0)
+            "9" -> this.menu9()
+            "10" -> this.menu10()
+            "11" -> exitProcess(0)
             else -> {
                 println("Option not understood. Try again.")
             }
@@ -44,10 +48,12 @@ class RootMenu {
         println("2 - Load keys from disk")
         println("3 - Sign a String using private key")
         println("4 - Sign a file using private key")
-        println("6 - Verify a signature of a file using public key")
-        println("7 - Encrypt a message using public or private key")
-        println("8 - Decrypt a message using public or private key")
-        println("9 - Exit")
+        println("6 - Verify a signature of a String using public key")
+        println("7 - Verify a signature of a String (Base64) using public key")
+        println("8 - Verify a signature of a file using public key")
+        println("9 - Encrypt a message using public or private key")
+        println("10 - Decrypt a message using public or private key")
+        println("11 - Exit")
     }
 
     private fun menu1() {
@@ -85,22 +91,46 @@ class RootMenu {
         println("Which is the signature you want to check (base64 encoded)?")
         val base64signature = (readlnOrNull() ?: "").trim()
 
-        val isValid = RSAHelper.verifyIsSignatureValidText(stringToVerify, base64signature, this.keyPair?.public)
+        val isValid = RSAHelper.verifyIsSignatureValidForText(stringToVerify, base64signature, this.keyPair?.public)
         println("Signature is ${if (isValid) "valid" else "not valid"}")
     }
 
     private fun menu6() {
+        println("Which String to verify?")
+        val textToVerify = (readlnOrNull() ?: "")
+
+        println("Which is the signature you want to check (base64 encoded)?")
+        val base64signature = (readlnOrNull() ?: "").trim()
+
+        val isValid = RSAHelper.verifyIsSignatureValidForText(textToVerify, base64signature, this.keyPair?.public)
+        println("Signature is ${if (isValid) "valid" else "not valid"}")
+    }
+
+    private fun menu7() {
+        println("Which String (base64) to verify?")
+        val base64ToVerify = (readlnOrNull() ?: "").trim()
+
+        println("Which is the signature you want to check (base64 encoded)?")
+        val base64signature = (readlnOrNull() ?: "").trim()
+
+        val isValid = RSAHelper.verifyIsSignatureValidForBase64Text(base64ToVerify, base64signature, this.keyPair?.public)
+        println("String: [$base64ToVerify]")
+        println("Decoded String: [${String(Base64.getDecoder().decode(base64ToVerify), StandardCharsets.UTF_8)}]")
+        println("Signature is ${if (isValid) "valid" else "not valid"}")
+    }
+
+    private fun menu8() {
         println("Which file to verify?")
         val fileToVerify = (readlnOrNull() ?: "").trim()
 
         println("Which is the signature you want to check (base64 encoded)?")
         val base64signature = (readlnOrNull() ?: "").trim()
 
-        val isValid = RSAHelper.verifyIsSignatureValid(fileToVerify, base64signature, this.keyPair?.public)
+        val isValid = RSAHelper.verifyIsSignatureValidForFile(fileToVerify, base64signature, this.keyPair?.public)
         println("Signature is ${if (isValid) "valid" else "not valid"}")
     }
 
-    private fun menu7() {
+    private fun menu9() {
         println("Which is the text you want to encrypt?")
         val textToEncrypt = (readlnOrNull() ?: "").trim()
 
@@ -120,7 +150,7 @@ class RootMenu {
         println("Encrypted is the text inside [] -> [$encryptedText]")
     }
 
-    private fun menu8() {
+    private fun menu10() {
         println("Which is the text you want to decrypt?")
         val textToDecrypt = (readlnOrNull() ?: "").trim()
 

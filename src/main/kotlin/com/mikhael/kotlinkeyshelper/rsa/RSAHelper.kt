@@ -89,7 +89,6 @@ class RSAHelper {
         private fun verifyIsSignatureValidBytes(bytesToVerify: ByteArray, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
             val signature = Signature.getInstance("SHA256withRSA")
 
-
             if (pubKey == null) throw Exception("Public key must be loaded")
             signature.initVerify(pubKey)
 
@@ -108,9 +107,17 @@ class RSAHelper {
             )
         }
 
-        fun verifyIsSignatureValidText(textToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+        fun verifyIsSignatureValidForText(textToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
             return verifyIsSignatureValidBytes(
                 textToVerify.toByteArray(StandardCharsets.UTF_8),
+                base64SignatureBytes,
+                pubKey
+            )
+        }
+
+        fun verifyIsSignatureValidForBase64Text(base64TextToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+            return verifyIsSignatureValidBytes(
+                Base64.getDecoder().decode(base64TextToVerify),
                 base64SignatureBytes,
                 pubKey
             )
@@ -123,7 +130,7 @@ class RSAHelper {
             )
         }
 
-        fun verifyIsSignatureValid(fileToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+        fun verifyIsSignatureValidForFile(fileToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
             return verifyIsSignatureValidBytes(
                 Files.readAllBytes(Paths.get(fileToVerify)),
                 base64SignatureBytes,
