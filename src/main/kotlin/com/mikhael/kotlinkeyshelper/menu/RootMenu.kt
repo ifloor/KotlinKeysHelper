@@ -27,6 +27,8 @@ class RootMenu {
             "4" -> this.menu4()
             "5" -> this.menu5()
             "6" -> this.menu6()
+            "7" -> this.menu7()
+            "8" -> this.menu8()
             "9" -> exitProcess(0)
             else -> {
                 println("Option not understood. Try again.")
@@ -40,10 +42,11 @@ class RootMenu {
         println("\n\n\n")
         println("1 - Generate keys")
         println("2 - Load keys from disk")
-        println("3 - Sign a file using private key")
-        println("4 - Verify a signature of a file using public key")
-        println("5 - Encrypt a message using public or private key")
-        println("6 - Decrypt a message using public or private key")
+        println("3 - Sign a String using private key")
+        println("4 - Sign a file using private key")
+        println("6 - Verify a signature of a file using public key")
+        println("7 - Encrypt a message using public or private key")
+        println("8 - Decrypt a message using public or private key")
         println("9 - Exit")
     }
 
@@ -62,14 +65,31 @@ class RootMenu {
     }
 
     private fun menu3() {
+        println("Which String to sign?")
+        val stringToSign = (readlnOrNull() ?: "")
+
+        println("Signature for string [$stringToSign] is [${RSAHelper.signText(stringToSign, keyPair?.private)}]")
+    }
+
+    private fun menu4() {
         println("Which file to sign?")
         val fileToSign = (readlnOrNull() ?: "").trim()
-
 
         println("Signature for file [$fileToSign] is [${RSAHelper.signFile(fileToSign, keyPair?.private)}]")
     }
 
-    private fun menu4() {
+    private fun menu5() {
+        println("Which String to verify?")
+        val stringToVerify = (readlnOrNull() ?: "").trim()
+
+        println("Which is the signature you want to check (base64 encoded)?")
+        val base64signature = (readlnOrNull() ?: "").trim()
+
+        val isValid = RSAHelper.verifyIsSignatureValidText(stringToVerify, base64signature, this.keyPair?.public)
+        println("Signature is ${if (isValid) "valid" else "not valid"}")
+    }
+
+    private fun menu6() {
         println("Which file to verify?")
         val fileToVerify = (readlnOrNull() ?: "").trim()
 
@@ -80,7 +100,7 @@ class RootMenu {
         println("Signature is ${if (isValid) "valid" else "not valid"}")
     }
 
-    private fun menu5() {
+    private fun menu7() {
         println("Which is the text you want to encrypt?")
         val textToEncrypt = (readlnOrNull() ?: "").trim()
 
@@ -100,7 +120,7 @@ class RootMenu {
         println("Encrypted is the text inside [] -> [$encryptedText]")
     }
 
-    private fun menu6() {
+    private fun menu8() {
         println("Which is the text you want to decrypt?")
         val textToDecrypt = (readlnOrNull() ?: "").trim()
 

@@ -73,34 +73,62 @@ class RSAHelper {
             return KeyPair(publicKey, privateKey)
         }
 
-        fun signFile(file: String, privKey: PrivateKey?): String {
+        private fun signBytes(bytesToSign: ByteArray, privKey: PrivateKey?): String {
             val signature = Signature.getInstance("SHA256withRSA")
             if (privKey == null) throw Exception("Keypair not loaded")
             signature.initSign(privKey)
 
-            val buf = Files.readAllBytes(Paths.get(file))
 
-            signature.update(buf)
+            signature.update(bytesToSign)
             val sigBytes = signature.sign()
             val encoder = Base64.getEncoder()
 
             return encoder.encodeToString(sigBytes)
         }
 
-        fun verifyIsSignatureValid(fileToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+        private fun verifyIsSignatureValidBytes(bytesToVerify: ByteArray, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
             val signature = Signature.getInstance("SHA256withRSA")
 
-            val fileBytes = Files.readAllBytes(Paths.get(fileToVerify))
 
             if (pubKey == null) throw Exception("Public key must be loaded")
             signature.initVerify(pubKey)
 
-            signature.update(fileBytes)
+            signature.update(bytesToVerify)
 
             val decoder = Base64.getDecoder()
             val signatureBytes = decoder.decode(base64SignatureBytes)
 
             return signature.verify(signatureBytes)
+        }
+
+        fun signText(textToSign: String, privKey: PrivateKey?): String {
+            return signBytes(
+                textToSign.toByteArray(StandardCharsets.UTF_8),
+                privKey
+            )
+        }
+
+        fun verifyIsSignatureValidText(textToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+            return verifyIsSignatureValidBytes(
+                textToVerify.toByteArray(StandardCharsets.UTF_8),
+                base64SignatureBytes,
+                pubKey
+            )
+        }
+
+        fun signFile(file: String, privKey: PrivateKey?): String {
+            return signBytes(
+                Files.readAllBytes(Paths.get(file)),
+                privKey
+            )
+        }
+
+        fun verifyIsSignatureValid(fileToVerify: String, base64SignatureBytes: String, pubKey: PublicKey?): Boolean {
+            return verifyIsSignatureValidBytes(
+                Files.readAllBytes(Paths.get(fileToVerify)),
+                base64SignatureBytes,
+                pubKey
+            )
         }
 
         fun encrypt(key: Key, message: String): String {
